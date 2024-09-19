@@ -38,8 +38,6 @@ def add(context: click.Context, deck: str, content: str):
 @click.argument('deck', type=click.Path(exists=True, dir_okay=False))
 def list(context: click.Context, deck: str):
     """Add a card to a deck"""
-
-    config: Config = Config()
     
     Deck(as_csv_path(deck)).list()
     return
