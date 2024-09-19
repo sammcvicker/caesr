@@ -1,12 +1,11 @@
 import click
 from pathlib import Path
 from supermemo2 import first_review, review
-from src.deck import Deck, Card
+from src.deck import Deck
+from src.config import Config
 
 def as_csv_path(path_str: str) -> Path:
-
     path = Path(path_str)
-
     if path.suffix != '.csv':
         raise click.ClickException("Deck must be a .csv file")
     return path
@@ -39,8 +38,20 @@ def add(context: click.Context, deck: str, content: str):
 @click.argument('deck', type=click.Path(exists=True, dir_okay=False))
 def list(context: click.Context, deck: str):
     """Add a card to a deck"""
+
+    config: Config = Config()
     
     Deck(as_csv_path(deck)).list()
+    return
+
+@cli.command()
+@click.pass_context
+def config(context: click.Context):
+    """Configure the srs tool"""
+
+    config: Config = Config()
+    config.configure()
+
     return
 
 if __name__ == '__main__':

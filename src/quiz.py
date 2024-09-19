@@ -1,17 +1,31 @@
 import click
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, BaseMessage
 from pydantic import BaseModel, Field
+from src.config import Config
 
+# Used for structured output
 class Evaluation(BaseModel):
     is_correct: bool = Field(description="Whether the response is correct")
 
 class Quiz:
-    def __init__(self, model_name: str = "claude-3-5-sonnet-20240620"):
-        self.model = ChatAnthropic(model=model_name)
+    def __init__(self):
+        self.model = self.get_model()
         self.messages: list[BaseMessage] = [
             SystemMessage("You are a helpful chatbot that responds with only what the user asks for.")
         ]
+
+    def get_model(self) -> BaseChatModel:
+        config: Config = Config()
+        match config.api:
+            case "OPENAI":
+                return ChatOpenAI(model=config.model, api_key=config.api_key)
+            case "ANTHROPIC":
+                return ChatAnthropic(model=config.model, api_key=config.api_key)
+            case _:
+                raise click.ClickException("API not supported")
     
     def invoke(self, content: str) -> bool:
         question = self.get_question(content)
