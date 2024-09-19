@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "srs"
-version = "0.1.0"
+version = "0.1.1"
 description = "A conceptual spaced repetition system using langchain and click"
 authors = ["Sam McVicker <sammcvicker@protonmail.com>"]
 license = "MIT"
