@@ -1,3 +1,5 @@
+![Animated demonstration of srs in action](./demo.gif)
+
 **srs** is a conceptual spaced repetition CLI built using LangChain and Click!
 
 Unlike with normal flash cards, **srs** only requires you to name or describe what you'd like to remember.
