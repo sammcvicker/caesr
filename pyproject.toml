@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "srs"
-version = "0.1.1"
+version = "0.1.2"
 description = "A conceptual spaced repetition system using langchain and click"
 authors = ["Sam McVicker <sammcvicker@protonmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{ include = "src" }]
+packages = [{ include = "srs" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -22,4 +22,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-srs = "src.main:cli"
+srs = "srs.__main__:cli"

@@ -2,30 +2,30 @@ from pathlib import Path
 from datetime import date, timedelta
 import csv
 import hashlib
-from src.quiz import Quiz
+from srs.quiz import Quiz
+
+def time_delta_for_bin(bin: int) -> timedelta:
+        return timedelta(days=bin)
 
 class Card:
-    def __init__(self, uid, content, bin, next: str | date):
+    def __init__(self, uid, content, bin, next_shown: str | date):
         self.uid: str = str(uid)
         self.content: str = str(content)
         self.bin: int = int(bin)
-        self.next: date = date.fromisoformat(next) if type(next) == str else next
+        self.next_shown: date = date.fromisoformat(next_shown) if type(next_shown) == str else next_shown
 
 class Deck:
     def __init__(self, path: Path):
         self.path = path
-        self.cards: list[Card] = self.load_cards()
-
-    def load_cards(self) -> list[Card]:
         with open(self.path, 'r') as f:
-            return [Card(**row) for row in csv.DictReader(f)]
+            self.cards = [Card(**row) for row in csv.DictReader(f)]
     
     def save_cards(self):
         with open(self.path, 'w') as f:
-            writer = csv.DictWriter(f, fieldnames=['uid', 'content', 'bin', 'next'])
+            writer = csv.DictWriter(f, fieldnames=['uid', 'content', 'bin', 'next_shown'])
             writer.writeheader()
             for card in self.cards:
-                writer.writerow({'uid': card.uid, 'content': card.content, 'bin': card.bin, 'next': card.next.isoformat()})
+                writer.writerow({'uid': card.uid, 'content': card.content, 'bin': card.bin, 'next_shown': card.next_shown.isoformat()})
         
     def use(self):
 
@@ -33,10 +33,10 @@ class Deck:
         today = date.today()
 
         for card in self.cards:
-            if card.next <= today:
+            if card.next_shown <= today:
                 is_correct: bool = quiz.invoke(card.content)
                 card.bin = card.bin + 1 if is_correct else 0
-                card.next = today + timedelta(days=card.bin)
+                card.next_shown = today + time_delta_for_bin(card.bin)
 
         self.save_cards()
 
@@ -45,7 +45,7 @@ class Deck:
             uid=hashlib.md5(content.encode()).hexdigest(),
             content=content,
             bin=0,
-            next=date.today()
+            next_shown=date.today()
         ))
         self.save_cards()
 

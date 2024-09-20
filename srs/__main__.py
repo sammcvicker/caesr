@@ -1,8 +1,10 @@
 import click
 from pathlib import Path
 from supermemo2 import first_review, review
-from src.deck import Deck
-from src.config import Config
+from srs.deck import Deck
+from srs.config import configure
+
+
 
 def as_csv_path(path_str: str) -> Path:
     path = Path(path_str)
@@ -47,10 +49,8 @@ def list(context: click.Context, deck: str):
 def config(context: click.Context):
     """Configure the srs tool"""
 
-    config: Config = Config()
-    config.configure()
+    configure()
 
     return
 
-if __name__ == '__main__':
-    cli()
+cli()

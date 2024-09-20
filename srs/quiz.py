@@ -4,7 +4,7 @@ from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, BaseMessage
 from pydantic import BaseModel, Field
-from src.config import Config
+from srs.config import load_config
 
 # Used for structured output
 class Evaluation(BaseModel):
@@ -12,18 +12,17 @@ class Evaluation(BaseModel):
 
 class Quiz:
     def __init__(self):
-        self.model = self.get_model()
+        self.model = self.get_model(load_config())
         self.messages: list[BaseMessage] = [
             SystemMessage("You are a helpful chatbot that responds with only what the user asks for.")
         ]
 
-    def get_model(self) -> BaseChatModel:
-        config: Config = Config()
-        match config.api:
-            case "OPENAI":
-                return ChatOpenAI(model=config.model, api_key=config.api_key)
-            case "ANTHROPIC":
-                return ChatAnthropic(model=config.model, api_key=config.api_key)
+    def get_model(self, config: dict[str, str]) -> BaseChatModel:
+        match config["api_name"]:
+            case "OpenAI":
+                return ChatOpenAI(model=config["model_name"], api_key=config["api_key"])
+            case "Anthropic":
+                return ChatAnthropic(model=config["model_name"], api_key=config["api_key"])
             case _:
                 raise click.ClickException("API not supported")
     
@@ -51,12 +50,32 @@ class Quiz:
     def check_answer(self, question: str, content: str, response: str) -> bool:
         
         return self.model.with_structured_output(Evaluation).invoke([
-            HumanMessage(f"Evaluate the response to the following question designed to test a users knowledge...\n\nKNOWLEDGE TO TEST: {content}\n\nQUESTION: {question}\n\nRESPONSE: {response}")
+            HumanMessage(
+                f"""Evaluate the response to the following question designed to test a users knowledge...
+                         
+                KNOWLEDGE TO TEST: {content}
+                
+                QUESTION: {question}
+                
+                RESPONSE: {response}"""
+            )
         ]).is_correct
     
     def explain(self, question: str, content: str, response: str):
         explanation = self.model.invoke([
-            SystemMessage("You are a helpful chatbot that responds with only what the user asks for. Do not preface your response in any way."),
-            HumanMessage(f"The following response to a question designed to test a user's knowledge was incorrect. Provide a helpful response to send to the user reminding them of the correct information...\n\nKNOWLEDGE TO TEST: {content}\n\nQUESTION: {question}\n\nRESPONSE: {response}")
+            SystemMessage(
+                """You are a helpful chatbot that responds with only what the user asks for. 
+                Do not preface your response in any way."""
+            ),
+            HumanMessage(
+                f"""The following response to a question designed to test a user's knowledge was incorrect. 
+                Provide a helpful response to send to the user reminding them of the correct information...
+                
+                KNOWLEDGE TO TEST: {content}
+                
+                QUESTION: {question}
+                
+                RESPONSE: {response}"""
+            )
         ]).content
         click.secho(explanation, fg='red', bold=True)
