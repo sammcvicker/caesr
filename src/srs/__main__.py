@@ -4,8 +4,6 @@ from supermemo2 import first_review, review
 from srs.deck import Deck
 from srs.config import configure
 
-
-
 def as_csv_path(path_str: str) -> Path:
     path = Path(path_str)
     if path.suffix != '.csv':
