@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "csr"
-version = "0.1.3"
+version = "0.1.4"
 description = "CSR is a Conceptual Spaced Repetition CLI"
 authors = ["Sam McVicker <sammcvicker@protonmail.com>"]
 license = "MIT"

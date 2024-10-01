@@ -10,7 +10,11 @@ from csr.config import load_config
 from csr.styles import styles
 
 SYSTEM_MESSAGE = SystemMessage(
-    "You are a helpful chatbot that responds with only what the user asks for."
+    """You are a helpful chatbot generating questions and evaluating responses for users training with flashcards.
+
+    Because these flashcards use AI to write the questions and evaluate the user's memory, it is important to ask good questions and evaluate each response the user gives solely in the context of that question asked.
+    
+    Respond with only what the user asks for."""
 )
 
 def _get_model() -> BaseChatModel:
@@ -120,17 +124,18 @@ class Quiz:
         """
         self.model = _get_model()
 
-    def does_user_remember(self, content: str) -> bool:
+    def does_user_remember(self, deck_name: str, content: str,) -> bool:
         """
         Test whether the user remembers the given content by asking a question and evaluating the response.
 
         Args:
+            deck_name (str): The name of the deck in which the content appears.
             content (str): The content to test the user's knowledge on.
 
         Returns:
             bool: True if the user's response is correct, False otherwise.
         """
-        question = self._get_question(content)
+        question = self._get_question(deck_name, content)
         click.secho(question, **styles["neutral"])
 
         response = click.prompt("Response")
@@ -144,17 +149,18 @@ class Quiz:
 
         return not correction
 
-    def _get_question(self, content: str) -> str:
+    def _get_question(self, deck_name: str, content: str) -> str:
         """
         Generate a question to test the user's knowledge of the given content.
 
         Args:
+            deck_name (str): The name of the deck in which the content appears.
             content (str): The content to base the question on.
 
         Returns:
             str: The generated question.
         """
-        query = f"Respond with a question that tests whether the user knows the following information: {content}"
+        query = f"The user is practicing remembering things stored in a file called {deck_name}. Respond with a question that tests whether the user knows the following information: {content}"
         return _try_invoke(self.model, query)
 
     def _evaluate(self, question: str, content: str, response: str) -> Evaluation:
