@@ -106,6 +106,10 @@ def _save_cards(cards: list[Card], deck_path: Path) -> None:
             )
 
 
+def _get_file_name(path: Path) -> str:
+    return str(path.parts[-1])
+
+
 class Deck:
     """
     Represents a deck of flashcards for spaced repetition practice.
@@ -134,10 +138,11 @@ class Deck:
         """
         quiz = Quiz()
         today = date.today()
+        deck_name = _get_file_name(self.path)
 
         for card in self.cards:
             if card.next_shown <= today:
-                remembered: bool = quiz.does_user_remember(card.content)
+                remembered: bool = quiz.does_user_remember(deck_name, card.content)
                 card.bin = card.bin + 1 if remembered else 0
                 card.next_shown = today + _time_delta_for_bin(card.bin)
 
