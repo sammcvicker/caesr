@@ -29,10 +29,8 @@ def _ensure_is_date(maybe_date: date | str) -> date:
 
     Returns:
         date: A date object.
-
-    Note:
-        TODO: Handle non-ISO format strings.
     """
+    # TODO: Handle other date formats
     if isinstance(maybe_date, str):
         return date.fromisoformat(maybe_date)
     return maybe_date
@@ -79,6 +77,7 @@ def _load_cards(deck_path: Path) -> list[Card]:
     Returns:
         list[Card]: A list of Card objects.
     """
+    # TODO: Handle files without headers or with different / missing fields
     with open(deck_path, "r") as f:
         return [Card(**row) for row in csv.DictReader(f)]
 
